@@ -8,22 +8,18 @@ class BaseFile:
         self.name = name
 
     def create_chat(self):
-        data = {'time_until_kick': 5, 'try_number': 3}
+        data = {}
         with open(f'data/{self.peer_id}/{self.peer_id}.json', 'x') as base:
             json.dump(data, base)
 
     def create(self):
         if not self.is_exists():
-            data = {'is_captcha': False}
+            data = {'is_captcha': True}
             with open(f'data/{self.peer_id}/{self.name}.json', 'x') as base:
                 json.dump(data, base)
 
     def is_exists(self):
-        if self.name is not None:
-            name = self.name
-        else:
-            name = self.peer_id
-        if os.path.exists(f'data/{self.peer_id}/{name}.json'):
+        if os.path.exists(f'data/{self.peer_id}/{self.name}.json'):
             return True
 
     def load(self):
@@ -33,7 +29,7 @@ class BaseFile:
             name = self.name
         else:
             name = self.peer_id
-        with open(f'data/{self.peer_id}/{name}.json', 'r') as base:
+        with open(f'data/{self.peer_id}/{name}.json', 'x') as base:
             return json.load(base)
 
     def upload(self, data):
@@ -43,5 +39,5 @@ class BaseFile:
             name = self.name
         else:
             name = self.peer_id
-        with open(f'data/{self.peer_id}/{name}.json', 'w') as base:
+        with open(f'data/{self.peer_id}/{name}.json', 'x') as base:
             json.dump(data, base)
