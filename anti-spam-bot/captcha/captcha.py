@@ -24,11 +24,11 @@ def check_time(vk):
                 base = BaseFile(chat, file)
                 data = base.load()
             except:
-                print(21)
+                pass
             time = datetime.datetime.fromisoformat(str(datetime.datetime.now())).timestamp()
 
             if 'time' in data:
-                if data['time'] <= time:
+                if data['time'] <= time and data['is_captcha']:
                     vkm = MethodsVK(vk, chat)
                     vkm.kick_user(file)
                     os.remove(f'data/{chat}/{file}.json')

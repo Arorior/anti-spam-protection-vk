@@ -8,13 +8,13 @@ class BaseFile:
         self.name = name
 
     def create_chat(self):
-        data = {}
+        data = {'need_captcha': False, }
         with open(f'data/{self.peer_id}/{self.peer_id}.json', 'x') as base:
             json.dump(data, base)
 
     def create(self):
         if not self.is_exists():
-            data = {'is_captcha': True}
+            data = {'is_captcha': True, }
             with open(f'data/{self.peer_id}/{self.name}.json', 'x') as base:
                 json.dump(data, base)
 
