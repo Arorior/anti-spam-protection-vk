@@ -8,6 +8,7 @@ from saya import Vk
 from basefile import BaseFile
 from captcha.captcha import Captcha
 from vkm import MethodsVK
+from settings import ChatSettings
 
 _data = open('.data', 'r').read().split('\n')
 TOKEN, GROUP_ID = _data
@@ -29,30 +30,50 @@ class Main(Vk):
 
     def type_new_action(self, msg):
         if msg['action']['type'] in ('chat_invite_user', ''):
-            Captcha(msg, vk).send_captcha()
+            if BaseFile(peer_id=msg['peer_id']).load()['need_captcha']:
+                Captcha(msg, vk).send_captcha()
 
     def type_new_message(self, msg):
         base = BaseFile(peer_id=msg['peer_id'], name=msg['from_id'])
         vkm = MethodsVK(vk, msg['peer_id'])
         data = base.load()
         text = msg['text']
+        split = text.split(' ')
 
-        if text != '' and data['is_captcha']:
-            if text == data['ans']:
+        if data['is_captcha']:
+            if text.lower() == data['ans']:
                 data['is_captcha'] = False
                 message = "Капча пройдена, личность подтверждена."
                 vk.messages.send(message=message, peer_id=msg['peer_id'],
                                  random_id=random.randint(1, 273635637238293))
             else:
                 data['retr'] -= 1
+                if data['retr'] == 1:
+                    message = "Предупреждение: Вспомните о капче, ведь у вас осталась 1 попытка..."
+                    vk.messages.send(message=message, peer_id=msg['peer_id'],
+                                     random_id=random.randint(1, 273635637238293))
                 if data['retr'] == 0:
                     data['is_captcha'] = True
                     data['time'] = 0
                     data['ans'] = False
                     vkm.kick_user(msg['from_id'])
 
+        else:
+            if split[0] in ('!setting', '!change', '!set', '!настройки'):
+                if not self.is_admin():
+                    message = 'Данную команду могут выполнять только администраторы'
+                    vk.messages.send(message=message, peer_id=msg['peer_id'],
+                                     random_id=random.randint(1, 273635637238293))
+                    return
+                message = ChatSettings(msg['peer_id'], split).get_text()
+
+                vk.messages.send(message=message, peer_id=msg['peer_id'],
+                                 random_id=random.randint(1, 273635637238293))
+
+        base.upload(data)
+
     def is_admin(self):
-        pass
+        return True
 
 
 if __name__ == '__main__':

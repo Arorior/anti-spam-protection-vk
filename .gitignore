@@ -2,6 +2,7 @@
 __pycache__/
 anti-spam-bot/.data
 .idea/
+data/.data
 *.py[cod]
 *$py.class
 
